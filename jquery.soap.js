@@ -77,9 +77,9 @@ https://github.com/doedje/jquery.soap/blob/1.3.10/README.md
 			var soapEnvelope = new SOAPEnvelope(soapObject);
 			// Additional attributes and namespaces for the Envelope
 			if (config.envAttributes) {
-				for (var i in config.envAttributes) {
-					soapEnvelope.addAttribute(i, config.envAttributes[i]);
-				}
+				$.each(config.envAttributes, function(i) {
+					soapEnvelope.addAttribute(i, this);
+				});
 			}
 			// WSS
 			if (!!config.wss) {
@@ -188,16 +188,19 @@ https://github.com/doedje/jquery.soap/blob/1.3.10/README.md
 		toString: function() {
 			var soapEnv = new SOAPObject(this.prefix + ':Envelope');
 			//Add attributes
-			for (var name in this.attributes) {
-				soapEnv.attr(name, this.attributes[name]);
-			}
+			$.each(this.attributes, function(name){
+				soapEnv.attr(name, this);
+			});
+
 			//Add Headers
+			console.dir(this.headers);
 			if (this.headers.length > 0) {
 				var soapHeader = soapEnv.newChild(this.prefix + ':Header');
 				for (var i = 0; i < this.headers.length; i++) {
 					soapHeader.appendChild(this.headers[i]);
 				}
 			}
+
 			//Add Bodies
 			if (this.bodies.length > 0) {
 				var soapBody = soapEnv.newChild(this.prefix + ':Body');
@@ -205,10 +208,12 @@ https://github.com/doedje/jquery.soap/blob/1.3.10/README.md
 					soapBody.appendChild(this.bodies[j]);
 				}
 			}
+
 			// Check for main NS over here...
 			if (!soapEnv.attr('xmlns:' + this.prefix)) {
 				soapEnv.addNamespace(this.prefix, this.soapConfig.namespaceURL);
 			}
+
 			// maybe add xsi here?
 			// xsi="http://www.w3.org/2001/XMLSchema-instance
 			return '<?xml version="1.0" encoding="UTF-8"?>' + soapEnv.toString();
@@ -226,6 +231,7 @@ https://github.com/doedje/jquery.soap/blob/1.3.10/README.md
 			if ($.isFunction(options.beforeSend)) {
 				options.beforeSend(this);
 			}
+			console.log(this.toString());
 			return $.ajax({
 				type: "POST",
 				url: options.url,
@@ -326,22 +332,25 @@ https://github.com/doedje/jquery.soap/blob/1.3.10/README.md
 			var out = [];
 			out.push('<'+this.name);
 			//Namespaces
-			for (var name in this.ns) {
-					out.push(' xmlns:' + name + '="' + this.ns[name] + '"');
-			}
+			$.each(this.ns, function(name) {
+				out.push(' xmlns:' + name + '="' + this + '"');
+			});
+
 			//Node Attributes
-			for (var attr in this.attributes) {
-					out.push(' ' + attr + '="' + this.attributes[attr] + '"');
-			}
+			$.each(this.attributes, function(attr) {
+				out.push(' ' + attr + '="' + this + '"');
+			});
+
 			out.push('>');
+
 			//Node children
 			if(this.hasChildren()) {
-				for(var cPos in this.children) {
-					var cObj = this.children[cPos];
+				$.each(this.children, function(cPos) {
+					var cObj = this;
 					if ((typeof(cObj) === 'object') && (cObj.typeOf === 'SOAPObject')) {
 						out.push(cObj.toString());
 					}
-				}
+				});
 			}
 			//Node Value
 			if (!!this.value) {
@@ -424,8 +433,10 @@ https://github.com/doedje/jquery.soap/blob/1.3.10/README.md
 			return soapObject;
 		},
 		json2soap: function (name, params, prefix, parentNode) {
-			var soapObject;
-			var childObject;
+			var soapObject,
+				childObject,
+				_self = this;
+
 			if (params === null) {
 				soapObject = new SOAPObject(prefix+name);
 				soapObject.attr('nil', true);
@@ -434,22 +445,22 @@ https://github.com/doedje/jquery.soap/blob/1.3.10/README.md
 				// added by DT - check if object is in fact an Array and treat accordingly
 				if(params.constructor.toString().indexOf("Array") > -1) { // type is array
 					// soapObject = parentNode;
-					for(var x in params) {
-						childObject = this.json2soap(name, params[x], prefix, parentNode);
+					$.each(params, function(x){
+						childObject = this.json2soap(name, this, prefix, parentNode);
 						parentNode.appendChild(childObject);
-					}
+					});
 				} else if (params.constructor.toString().indexOf("String") > -1) { // type is string
 					// handle String objects as string primitive value
 					soapObject = new SOAPObject(prefix+name);
 					soapObject.val(''+params); // the ''+ is added to fix issues with falsey values.
 				} else {
 					soapObject = new SOAPObject(prefix+name);
-					for(var y in params) {
-						childObject = this.json2soap(y, params[y], prefix, soapObject);
+					$.each(params, function(y) {
+						childObject = _self.json2soap(y, this, prefix, soapObject);
 						if (childObject) {
 							soapObject.appendChild(childObject);
 						}
-					}
+					});
 				}
 			} else {
 				soapObject = new SOAPObject(prefix+name);
