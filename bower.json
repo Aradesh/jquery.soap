@@ -1,7 +1,8 @@
 {
 	"name": "jquery.soap",
-	"version": "1.3.10",
+	"version": "1.6.0",
 	"keywords": [
+		"jquery",
 		"soap",
 		"ajax",
 		"wss"
