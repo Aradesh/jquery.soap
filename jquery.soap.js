@@ -233,15 +233,6 @@ https://github.com/doedje/jquery.soap/blob/1.4.3/README.md
 				processData: false,
 				data: this.toString(),
 				contentType: contentType + "; charset=UTF-8",
-				xhrFields: {
-				  onprogress: function(e) {
-				    if (e.lengthComputable) {
-				      log("jquery.soap - progress:", (e.loaded / e.total * 100));
-				    } else {
-				      log("jquery.soap - progress:","Length not computable.");
-				    }
-				  }
-				},
 				beforeSend: function() {
 					if ($.isFunction(options.beforeSend)) {
 						return options.beforeSend(self);
