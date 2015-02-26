@@ -225,6 +225,7 @@ https://github.com/doedje/jquery.soap/blob/1.4.3/README.md
 			log('jquery.soap - beforeSend:', $.parseXML(this.toString()).firstChild);
 			return $.ajax({
 				type: "POST",
+				cache: false,
 				url: options.url,
 				async: options.async,
 				headers: options.headers,
