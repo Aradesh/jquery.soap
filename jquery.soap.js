@@ -130,7 +130,7 @@ https://github.com/doedje/jquery.soap/blob/1.4.3/README.md
 		this.attributes = {};
 		this.headers = [];
 		this.bodies = [];
-		
+
 		// let's get the soap namespace prefix
 		var parts = soapObject.name.split(':');
 		if (parts[1] === 'Envelope' || parts[1] === 'Body') {
@@ -349,7 +349,7 @@ https://github.com/doedje/jquery.soap/blob/1.4.3/README.md
 			}
 			//Node Value
 			if (!!this.value) {
-			    encodedValue = this.value.match(/<!\[CDATA\[.*?\]\]>/)?
+			    encodedValue = this.value.match(/<!\[CDATA\[[\s\S]*\]\]>/)?
 			        this.value:
 			        this.value.replace(/[<>&"']/g, function (ch) {
 			            return xmlCharMap[ch];
@@ -421,7 +421,7 @@ https://github.com/doedje/jquery.soap/blob/1.4.3/README.md
 					soapObject = SOAPTool.json2soap(options.name, options.data, options.prefix);
 					if (!!options.namespaceQualifier && !!options.namespaceURL) {
 						soapObject.addNamespace(options.namespaceQualifier, options.namespaceURL);
-					} 
+					}
 					else if (!!options.namespaceURL) {
 						soapObject.attr('xmlns', options.namespaceURL);
 					}
